@@ -1,0 +1,123 @@
+﻿@model CoinMarket.Model.Models.PortfolioModel
+
+@{
+    ViewData["Title"] = "Account";
+}
+
+<h1>Account</h1>
+
+<div>
+    <h4>Customer</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            <label>@Model.FirstName</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd class="col-sm-10">
+            <label>@Model.LastName</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Balance)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="balance">@Model.Balance $</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Last24HStatus)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="status">@Model.Last24HStatus %</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.NetWorth)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="networth">@Model.NetWorth $</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AvgBuyPrice)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="avgprice">@Model.AvgBuyPrice $</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Quantity)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="quantity">@Model.Quantity BNB</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProfitOrLoss)
+        </dt>
+        <dd class="col-sm-10">
+            <label id="profitorloss">@Model.ProfitOrLoss $</label>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PercantageOfProfitOrLoss)
+        </dt>
+        <dd class="col-sm-10" style="text-align: center">
+            <label id="popol">@Model.PercantageOfProfitOrLoss %</label>
+        </dd>
+    </dl>
+</div>
+<div>
+    <form id="buyForm">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <div class="col-sm-8">
+                <input type="hidden" id="CustomerId" name="CustomerId" value="1" />
+                <input type="hidden" id="CoinCode" name="CoinCode" value="1" />
+                <input class="form-control" type="text" name="Amount" id="Amount" placeholder="Quantity to Buy BNB" required />
+            </div>
+        </div>
+        <button type="button" id="buy">Buy</button>
+    </form>
+</div>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#buy").on('click', function () {
+                if ($('#Amount').val() <= 0) {
+                    window.alert('New Amount must be bigger than 0');
+                    return;
+                }
+
+                var form = $('#buyForm');
+                $.ajax({
+                    url: "/buy",
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function (response, textStatus, jqXHR) {
+                        if (response.done) {
+                            console.log(response);
+                            $('#balance').text(response.data.balance + "$");
+                            $('#status').text(response.data.last24HStatus + "%");
+                            $('#networth').text(response.data.netWorth + "$");
+                            $('#avgprice').text(response.data.avgBuyPrice + "$");
+                            $('#profitorloss').text(response.data.profitOrLoss+ "$");
+                            $('#popol').text(response.data.percantageOfProfitOrLoss + "%");
+                            $('#quantity').text(response.data.quantity + "BNB");
+                        }
+                        else {
+                            window.alert(response.errorMessage);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        window.alert('Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
+
+                    }
+                });
+            });
+        });
+
+    </script>
+}
+
