@@ -98,7 +98,7 @@ namespace CoinMarket.Controllers
             await _context.SaveChangesAsync();
 
             var transactions = await _transactionRepository.ShowPortfolio(model.CustomerId, model.CoinCode);
-            
+
 
             responseModel.Data = ToResponseModel(customer, transactions, response.Data?.Data?.BNB?.Quote?.USD);
             responseModel.Done = true;
@@ -108,10 +108,9 @@ namespace CoinMarket.Controllers
 
         public async Task<IActionResult> Account(long customerId, int coinCode = 1)
         {
-            _logger.LogInformation(new EventId(1),null,"");
             var customer = await _customerRepository.Get(customerId);
             if (customer is null)
-                throw new Exception("Customer not found");
+                return NoContent();
 
             var transactions = await _transactionRepository.ShowPortfolio(customerId, coinCode);
 
@@ -122,7 +121,7 @@ namespace CoinMarket.Controllers
 
             var response = await client.ExecuteAsync<CoinMarketResponse>(request);
             if (response is null || !response.IsSuccessful)
-                throw new Exception("Coinmarket response error.");
+                return NoContent();
 
 
             return await Task.FromResult(View(ToResponseModel(customer, transactions, response.Data?.Data?.BNB?.Quote?.USD)));
